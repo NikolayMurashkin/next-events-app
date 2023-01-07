@@ -1,10 +1,10 @@
 import EventItem from './event-item';
 import styles from './event-list.module.css';
 
-export default function EventList({ featuredEvents }) {
+export default function EventList({ events }) {
 	return (
 		<ul className={styles.list}>
-			{featuredEvents.map((event) => (
+			{events.map((event) => (
 				<EventItem key={event.id} {...event} />
 			))}
 		</ul>

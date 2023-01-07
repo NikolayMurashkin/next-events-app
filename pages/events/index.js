@@ -1,37 +1,20 @@
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-useRouter;
+
+import { getAllEvents } from '../../dummy-data';
+import EventList from '../../components/events/event-list';
+import EventsSearch from '../../components/events/events-search';
 
 export default function AllEventsPage() {
 	const router = useRouter();
+	const allEvents = getAllEvents();
 
-	const events = [
-		{ id: 1, name: 'firstEvent' },
-		{ id: 2, name: 'secondEvent' },
-	];
-
-	function toHomePageHandler() {
-		router.replace('/');
+	function findEventsHandler(year, month) {
+		router.push(`/events/${year}/${month}`);
 	}
-
 	return (
-		<div>
-			<h1>Events Page</h1>
-			<ul>
-				{events.map((event) => (
-					<li key={event.id}>
-						<Link
-							href={{
-								pathname: '/events/[eventId]',
-								query: { eventId: event.id },
-							}}
-						>
-							{event.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-			<button onClick={toHomePageHandler}>To Home Page</button>
-		</div>
+		<>
+			<EventsSearch onSearch={findEventsHandler} />
+			<EventList events={allEvents} />
+		</>
 	);
 }
