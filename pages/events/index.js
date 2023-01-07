@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 useRouter;
 
-export default function EventsPage() {
+export default function AllEventsPage() {
 	const router = useRouter();
 
 	const events = [
