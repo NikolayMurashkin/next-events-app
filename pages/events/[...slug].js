@@ -1,33 +1,15 @@
-import { useRouter } from 'next/router';
-
-import { getFilteredEvents } from '../../dummy-data';
 import EventList from '../../components/events/event-list';
 import ResultsTitle from '../../components/events/results-title';
 import ErrorAlert from '../../components/ui/error-alert';
 import Button from '../../components/ui/button';
-import { Fragment } from 'react';
+import { getFilteredEvents } from '../../helpers/api-util';
 
-export default function FilteredEventsPage() {
-	const router = useRouter();
-	const filteredData = router.query.slug;
-
-	if (!filteredData) {
-		return (
-			<>
-				<p>Loading...</p>
-				<Button link={'/events'}>Show All Events</Button>
-			</>
-		);
+export default function FilteredEventsPage({ filteredEvents, hasError, date }) {
+	if (!filteredEvents) {
+		return <p>Loading...</p>;
 	}
-	const filteredYear = +filteredData[0];
-	const filteredMonth = +filteredData[1];
-	if (
-		isNaN(filteredYear) ||
-		isNaN(filteredMonth) | (filteredYear > 2030) ||
-		(filteredYear < 2022) | (filteredMonth < 1) ||
-		filteredMonth > 12 ||
-		filteredData.length > 2
-	) {
+
+	if (hasError) {
 		return (
 			<>
 				<ErrorAlert>
@@ -38,10 +20,6 @@ export default function FilteredEventsPage() {
 		);
 	}
 
-	const filteredEvents = getFilteredEvents({
-		year: filteredYear,
-		month: filteredMonth,
-	});
 	if (!filteredEvents || filteredEvents.length === 0) {
 		return (
 			<>
@@ -51,12 +29,48 @@ export default function FilteredEventsPage() {
 		);
 	}
 
-	const date = new Date(filteredYear, filteredMonth - 1);
-
 	return (
 		<>
 			<ResultsTitle date={date} />
 			<EventList events={filteredEvents} />
 		</>
 	);
+}
+
+export async function getServerSideProps(context) {
+	const [year, month] = context.params.slug;
+
+	const filteredEvents = await getFilteredEvents({
+		year: +year,
+		month: +month,
+	});
+
+	const humanReadableDate = new Date(year, month - 1).toLocaleDateString(
+		'en-US',
+		{
+			month: 'long',
+			year: 'numeric',
+		}
+	);
+
+	if (
+		isNaN(+year) ||
+		isNaN(+month) | (year > 2030) ||
+		(year < 2022) | (month < 1) ||
+		month > 12 ||
+		context.params.slug.length > 2
+	) {
+		return {
+			props: {
+				hasError: true,
+			},
+		};
+	}
+
+	return {
+		props: {
+			filteredEvents,
+			date: humanReadableDate,
+		},
+	};
 }

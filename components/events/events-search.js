@@ -2,7 +2,6 @@ import { useRef } from 'react';
 
 import Button from '../ui/button';
 import styles from './events-search.module.css';
-import { getFilteredEvents } from '../../dummy-data';
 
 export default function EventsSearch({ onSearch }) {
 	const yearInputRef = useRef();

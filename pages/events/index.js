@@ -1,16 +1,20 @@
 import { useRouter } from 'next/router';
 
-import { getAllEvents } from '../../dummy-data';
 import EventList from '../../components/events/event-list';
 import EventsSearch from '../../components/events/events-search';
+import { getAllEvents } from '../../helpers/api-util';
 
 export default function AllEventsPage({ allEvents }) {
 	const router = useRouter();
-	// const allEvents = getAllEvents();
 
 	function findEventsHandler(year, month) {
 		router.push(`/events/${year}/${month}`);
 	}
+
+	if (!allEvents) {
+		return <p>Loading...</p>;
+	}
+
 	return (
 		<>
 			<EventsSearch onSearch={findEventsHandler} />
@@ -20,14 +24,12 @@ export default function AllEventsPage({ allEvents }) {
 }
 
 export async function getStaticProps() {
-	const res = await fetch(
-		'https://next-events-app-4045a-default-rtdb.europe-west1.firebasedatabase.app/events.json'
-	);
-	const allEvents = await res.json();
+	const allEvents = await getAllEvents();
 
 	return {
 		props: {
 			allEvents,
 		},
+		revalidate: 60,
 	};
 }
