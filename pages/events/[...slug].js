@@ -1,3 +1,5 @@
+import Head from 'next/head';
+
 import EventList from '../../components/events/event-list';
 import ResultsTitle from '../../components/events/results-title';
 import ErrorAlert from '../../components/ui/error-alert';
@@ -5,13 +7,23 @@ import Button from '../../components/ui/button';
 import { getFilteredEvents } from '../../helpers/api-util';
 
 export default function FilteredEventsPage({ filteredEvents, hasError, date }) {
-	if (!filteredEvents) {
-		return <p>Loading...</p>;
-	}
+	const pageHeadData = (
+		<Head>
+			<title>Filtered Events</title>
+			<meta name='description' content={`All events for ${date}`} />
+		</Head>
+	);
 
 	if (hasError) {
 		return (
 			<>
+				<Head>
+					<title>Filtered Events</title>
+					<meta
+						name='description'
+						content='Invalid filter. Please adjust your values!'
+					/>
+				</Head>
 				<ErrorAlert>
 					Invalid filter. Please adjust your values!
 				</ErrorAlert>
@@ -20,9 +32,19 @@ export default function FilteredEventsPage({ filteredEvents, hasError, date }) {
 		);
 	}
 
+	if (!filteredEvents) {
+		return (
+			<>
+				{pageHeadData}
+				<p>Loading...</p>
+			</>
+		);
+	}
+
 	if (!filteredEvents || filteredEvents.length === 0) {
 		return (
 			<>
+				{pageHeadData}
 				<ErrorAlert>No events found for the chosen filter!</ErrorAlert>
 				<Button link={'/events'}>Show All Events</Button>
 			</>
@@ -31,6 +53,7 @@ export default function FilteredEventsPage({ filteredEvents, hasError, date }) {
 
 	return (
 		<>
+			{pageHeadData}
 			<ResultsTitle date={date} />
 			<EventList events={filteredEvents} />
 		</>
